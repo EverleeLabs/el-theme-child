@@ -13,11 +13,25 @@ jobs:
 
       - name: Create zip file
         run: |
+          # Install zip if not available
+          sudo apt-get update && sudo apt-get install -y zip || true
+          
+          # Create zip excluding git and github directories
           zip -r el-theme-child.zip . \
-            -x "*.git*" \
+            -x ".git/*" \
             -x ".github/*" \
             -x "*.DS_Store" \
-            -x "*.zip"
+            -x "*.zip" \
+            -x ".gitignore"
+          
+          # Verify zip was created
+          if [ ! -f el-theme-child.zip ]; then
+            echo "Error: zip file was not created"
+            exit 1
+          fi
+          
+          echo "Zip file created successfully:"
+          ls -lh el-theme-child.zip
 
       - name: Upload zip to release
         run: |
