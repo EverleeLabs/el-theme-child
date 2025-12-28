@@ -39,8 +39,20 @@ jobs:
           echo "Files in directory:"
           ls -la
           
-          # Create zip file with explicit file list to avoid issues
+          # Create zip file with folder structure
+          # This creates el-theme-child/ folder inside the zip
           zip el-theme-child.zip style.css functions.php README.md screenshot.png
+          
+          # Use zipnote to add directory prefix, or recreate with proper structure
+          # Create a temporary directory structure
+          mkdir -p temp-zip/el-theme-child
+          cp style.css functions.php README.md screenshot.png temp-zip/el-theme-child/
+          
+          # Create zip from the directory structure
+          cd temp-zip
+          zip -r ../el-theme-child.zip el-theme-child/
+          cd ..
+          rm -rf temp-zip
           
           # Verify zip was created
           if [ ! -f el-theme-child.zip ]; then
