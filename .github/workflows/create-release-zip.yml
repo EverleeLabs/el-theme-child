@@ -39,14 +39,15 @@ jobs:
           echo "Files in directory:"
           ls -la
           
-          # Create zip file with folder structure
-          # This creates el-theme-child/ folder inside the zip
-          zip el-theme-child.zip style.css functions.php README.md screenshot.png
-          
-          # Use zipnote to add directory prefix, or recreate with proper structure
           # Create a temporary directory structure
           mkdir -p temp-zip/el-theme-child
-          cp style.css functions.php README.md screenshot.png temp-zip/el-theme-child/
+          
+          # Copy all files except those we want to exclude
+          # Exclude: .git, .github, .DS_Store, existing zip files, and .gitignore
+          find . -maxdepth 1 -type f ! -name "*.zip" ! -name ".DS_Store" ! -name ".gitignore" -exec cp {} temp-zip/el-theme-child/ \;
+          
+          # Copy any subdirectories (except .git and .github)
+          find . -mindepth 1 -maxdepth 1 -type d ! -name ".git" ! -name ".github" ! -name "temp-zip" -exec cp -r {} temp-zip/el-theme-child/ \;
           
           # Create zip from the directory structure
           cd temp-zip
