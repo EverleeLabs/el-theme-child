@@ -17,43 +17,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Create zip file
-        run: |
-          set -e
-          echo "Current directory: $(pwd)"
-          echo "Files in directory:"
-          ls -la
-          
-          # Install zip if not available
-          sudo apt-get update && sudo apt-get install -y zip
-          
-          # Remove existing zip if present
-          rm -f el-theme-child.zip
-          
-          # Create zip excluding git and github directories
-          # Note: zip -r includes directories, we exclude .git and .github
-          zip -r el-theme-child.zip . \
-            -x ".git/*" \
-            -x ".github/*" \
-            -x "*.DS_Store" \
-            -x "*.zip" \
-            || {
-              echo "Zip command failed, trying alternative method..."
-              # Alternative: explicitly include only what we want
-              zip -r el-theme-child.zip style.css functions.php README.md || exit 1
-            }
-          
-          # Verify zip was created
-          if [ ! -f el-theme-child.zip ]; then
-            echo "Error: zip file was not created"
-            exit 1
-          fi
-          
-          echo "Zip file created successfully:"
-          ls -lh el-theme-child.zip
-          echo "Contents of zip:"
-          unzip -l el-theme-child.zip
-
       - name: Determine tag name
         id: tag
         run: |
@@ -68,6 +31,26 @@ jobs:
           echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
           echo "Using tag: $TAG_NAME"
 
+      - name: Create zip file
+        run: |
+          echo "Current directory: $(pwd)"
+          echo "Files in directory:"
+          ls -la
+          
+          # Create zip file with explicit file list to avoid issues
+          zip el-theme-child.zip style.css functions.php README.md
+          
+          # Verify zip was created
+          if [ ! -f el-theme-child.zip ]; then
+            echo "Error: zip file was not created"
+            exit 1
+          fi
+          
+          echo "Zip file created successfully:"
+          ls -lh el-theme-child.zip
+          echo "Contents of zip:"
+          unzip -l el-theme-child.zip
+
       - name: Upload zip to release
         run: |
           echo "Uploading el-theme-child.zip to release ${{ steps.tag.outputs.tag_name }}"
@@ -76,4 +59,3 @@ jobs:
             --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
