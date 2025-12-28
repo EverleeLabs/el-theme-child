@@ -39,11 +39,24 @@ jobs:
           echo "Zip file created successfully:"
           ls -lh el-theme-child.zip
 
+      - name: Determine tag name
+        id: tag
+        run: |
+          if [ -n "${{ github.event.release.tag_name }}" ]; then
+            TAG_NAME="${{ github.event.release.tag_name }}"
+          elif [ -n "${{ github.event.inputs.tag_name }}" ]; then
+            TAG_NAME="${{ github.event.inputs.tag_name }}"
+          else
+            echo "Error: No tag name provided"
+            exit 1
+          fi
+          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "Using tag: $TAG_NAME"
+
       - name: Upload zip to release
         run: |
-          # Use tag from event or workflow_dispatch input
-          TAG_NAME="${{ github.event.release.tag_name || github.event.inputs.tag_name }}"
-          gh release upload "$TAG_NAME" el-theme-child.zip \
+          echo "Uploading el-theme-child.zip to release ${{ steps.tag.outputs.tag_name }}"
+          gh release upload "${{ steps.tag.outputs.tag_name }}" el-theme-child.zip \
             --repo "${{ github.repository }}" \
             --clobber
         env:
