@@ -40,7 +40,7 @@ jobs:
           ls -la
           
           # Create zip file with explicit file list to avoid issues
-          zip el-theme-child.zip style.css functions.php README.md
+          zip el-theme-child.zip style.css functions.php README.md screenshot.png
           
           # Verify zip was created
           if [ ! -f el-theme-child.zip ]; then
