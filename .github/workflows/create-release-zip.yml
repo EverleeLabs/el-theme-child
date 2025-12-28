@@ -2,7 +2,13 @@ name: Create Release Zip
 
 on:
   release:
-    types: [created, edited]
+    types: [created, edited, published]
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release tag name'
+        required: true
+        type: string
 
 jobs:
   create-zip:
@@ -35,7 +41,9 @@ jobs:
 
       - name: Upload zip to release
         run: |
-          gh release upload "${{ github.event.release.tag_name }}" el-theme-child.zip \
+          # Use tag from event or workflow_dispatch input
+          TAG_NAME="${{ github.event.release.tag_name || github.event.inputs.tag_name }}"
+          gh release upload "$TAG_NAME" el-theme-child.zip \
             --repo "${{ github.repository }}" \
             --clobber
         env:
